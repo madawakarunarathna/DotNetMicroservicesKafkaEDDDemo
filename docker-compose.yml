@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  kafka:
+    image: redpandadata/redpanda:v24.1.14
+    container_name: kafka
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp=1
+      - --memory=512M
+      - --reserve-memory=0M
+      - --node-id=0
+      - --check=false
+      - --set
+      - redpanda.auto_create_topics_enabled=true
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
+      - --advertise-kafka-addr=PLAINTEXT://kafka:9092,OUTSIDE://localhost:9093
+    ports:
+      - "9092:9092"   # for containers (PLAINTEXT)
+      - "9093:9093"   # for host apps (OUTSIDE)
+      - "9644:9644"
+    networks: [appnet]
+
+  redpanda-console:
+    image: redpandadata/console:latest
+    container_name: redpanda-console
+    ports:
+      - "8088:8080"
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - kafka
+    networks: [appnet]
+
+  userservice:
+    build:
+      context: .
+      dockerfile: services/UserService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on: [kafka]
+    ports:
+      - "8080:8080"
+    networks: [appnet]
+
+  orderservice:
+    build:
+      context: .
+      dockerfile: services/OrderService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on: [kafka]
+    ports:
+      - "8081:8081"
+    networks: [appnet]
+
+networks:
+  appnet:
+    driver: bridge
+    
