@@ -32,6 +32,8 @@ namespace UserService.Application.Services
 
         public async Task<UserResponse> CreateUserAsync(CreateUserRequest request, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
+
             await _userValidator.ValidateUserAsync(request, ct);
 
             var user = _mapper.Map<User>(request);
