@@ -4,6 +4,9 @@ using UserService.Dtos.Requests;
 
 namespace UserService.Controllers
 {
+    /// <summary>
+    /// API endpoints for user management.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -15,6 +18,12 @@ namespace UserService.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Creates a new user.
+        /// </summary>
+        /// <param name="request">The user creation request containing name and email.</param>
+        /// <param name="ct">Cancellation token.</param>
+        /// <returns>Returns the created user with HTTP 201 Created.</returns>
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserRequest request, CancellationToken ct)
         {
@@ -25,6 +34,11 @@ namespace UserService.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        /// <summary>
+        /// Retrieves all users.
+        /// </summary>
+        /// <param name="ct">Cancellation token.</param>
+        /// <returns>List of users.</returns>
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken ct)
         {
@@ -32,6 +46,12 @@ namespace UserService.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Retrieves a user by identifier.
+        /// </summary>
+        /// <param name="id">The unique identifier of the user.</param>
+        /// <param name="ct">Cancellation token.</param>
+        /// <returns>The user if found; otherwise HTTP 404 Not Found.</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
         {

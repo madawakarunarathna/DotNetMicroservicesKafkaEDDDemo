@@ -4,6 +4,9 @@ using OrderService.Dtos.Requests;
 
 namespace OrderService.Controllers
 {
+    /// <summary>
+    /// API endpoints for order management.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class OrdersController : ControllerBase
@@ -15,7 +18,12 @@ namespace OrderService.Controllers
             _orderService = orderService;
         }
 
-        //create post endpoint to create order
+        /// <summary>
+        /// Creates a new order.
+        /// </summary>
+        /// <param name="request">The order creation request.</param>
+        /// <param name="ct">Cancellation token.</param>
+        /// <returns>Returns the created order with HTTP 201 Created.</returns>
         [HttpPost]
         public async Task<IActionResult> Create(CreateOrderRequest request, CancellationToken ct)
         {
@@ -24,7 +32,11 @@ namespace OrderService.Controllers
             return CreatedAtAction(nameof(GetAll), new { id = created.Id }, created);
         }
 
-        //create get endpoint to get all orders
+        /// <summary>
+        /// Retrieves all orders.
+        /// </summary>
+        /// <param name="ct">Cancellation token.</param>
+        /// <returns>List of orders.</returns>
         [HttpGet]
         public async Task<IActionResult> GetAll(CancellationToken ct)
         {

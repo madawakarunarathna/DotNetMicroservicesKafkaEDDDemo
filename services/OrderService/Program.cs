@@ -5,6 +5,7 @@ using OrderService.Application.Services;
 using OrderService.Messaging.Consumers;
 using OrderService.Messaging.Producers;
 using OrderService.Persistence;
+using System.Reflection;
 using UserService.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +29,19 @@ builder.Services.AddAutoMapper(typeof(OrderMappingProfile));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "UserService API", Version = "v1", Description = "Create Users and Retrive Users" });
+
+    // Enable XML comments (auto-generates summaries/descriptions)
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+
+    // Optional: group by controller tags
+    c.TagActionsBy(api => new[] { api.GroupName ?? api.ActionDescriptor.RouteValues["controller"]! });
+    c.DocInclusionPredicate((name, api) => true);
+});
 
 var app = builder.Build();
 
