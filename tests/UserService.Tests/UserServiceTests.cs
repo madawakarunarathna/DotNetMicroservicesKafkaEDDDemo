@@ -17,8 +17,8 @@ using UserService.Domain;
 using UserService.Dtos.Requests;
 using UserService.Dtos.Responses;
 using UserService.Persistence;
-using UserService.Validation;
 using Xunit;
+using UserService.Application.CQRS.Commands.CreateUser;
 
 namespace UserService.Tests
 {
@@ -59,7 +59,7 @@ namespace UserService.Tests
             var db = CreateDbContext(Guid.NewGuid().ToString());
 
             var producerMock = new Mock<IEventProducer>();
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             validatorMock
                 .Setup(v => v.ValidateUserAsync(It.IsAny<CreateUserRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((CreateUserRequest r, CancellationToken ct) => r.Email.Trim().ToLowerInvariant());
@@ -108,7 +108,7 @@ namespace UserService.Tests
             await db.SaveChangesAsync();
 
             var producerMock = new Mock<IEventProducer>();
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             var kafka = Options.Create(new KafkaOptions { Topics = new KafkaTopics { Users = "users.events" } });
             var mapper = CreateMapperMock();
 
@@ -132,7 +132,7 @@ namespace UserService.Tests
             await db.SaveChangesAsync();
 
             var producerMock = new Mock<IEventProducer>();
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             var kafka = Options.Create(new KafkaOptions { Topics = new KafkaTopics { Users = "users.events" } });
             var mapper = CreateMapperMock();
 
@@ -161,7 +161,7 @@ namespace UserService.Tests
                 .Setup(p => p.ProduceAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("Broker unavailable"));
 
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             validatorMock
                 .Setup(v => v.ValidateUserAsync(It.IsAny<CreateUserRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((CreateUserRequest r, CancellationToken ct) => r.Email.Trim().ToLowerInvariant());
@@ -199,7 +199,7 @@ namespace UserService.Tests
             var db = CreateDbContext(Guid.NewGuid().ToString());
 
             var producerMock = new Mock<IEventProducer>();
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             validatorMock
                 .Setup(v => v.ValidateUserAsync(It.IsAny<CreateUserRequest>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new DuplicateEmailException("dup@example.com"));
@@ -229,7 +229,7 @@ namespace UserService.Tests
             var db = CreateDbContext(Guid.NewGuid().ToString());
 
             var producerMock = new Mock<IEventProducer>();
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             validatorMock
                 .Setup(v => v.ValidateUserAsync(It.IsAny<CreateUserRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((CreateUserRequest r, CancellationToken ct) => r.Email.Trim().ToLowerInvariant());
@@ -268,7 +268,7 @@ namespace UserService.Tests
                 .Callback<string, string, object, CancellationToken>((t, k, v, ct) => captured = v as UserCreated)
                 .Returns(Task.CompletedTask);
 
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             validatorMock
                 .Setup(v => v.ValidateUserAsync(It.IsAny<CreateUserRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((CreateUserRequest r, CancellationToken ct) => r.Email.Trim().ToLowerInvariant());
@@ -304,7 +304,7 @@ namespace UserService.Tests
             mapperMock.Setup(m => m.Map<User>(It.IsAny<CreateUserRequest>())).Throws(new Exception("map to user fail"));
 
             var producerMock = new Mock<IEventProducer>();
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             validatorMock
                 .Setup(v => v.ValidateUserAsync(It.IsAny<CreateUserRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((CreateUserRequest r, CancellationToken ct) => r.Email.Trim().ToLowerInvariant());
@@ -341,7 +341,7 @@ namespace UserService.Tests
             var producerMock = new Mock<IEventProducer>();
             producerMock.Setup(p => p.ProduceAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             validatorMock
                 .Setup(v => v.ValidateUserAsync(It.IsAny<CreateUserRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((CreateUserRequest r, CancellationToken ct) => r.Email.Trim().ToLowerInvariant());
@@ -370,7 +370,7 @@ namespace UserService.Tests
             var db = CreateDbContext(Guid.NewGuid().ToString());
 
             var producerMock = new Mock<IEventProducer>();
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
             var kafka = Options.Create(new KafkaOptions { Topics = new KafkaTopics { Users = "users.events" } });
             var mapper = CreateMapperMock();
 
@@ -391,7 +391,7 @@ namespace UserService.Tests
             var db = CreateDbContext(Guid.NewGuid().ToString());
 
             var producerMock = new Mock<IEventProducer>();
-            var validatorMock = new Mock<IUserValidator>();
+            var validatorMock = new Mock<ICreateUserCommandValidator>();
 
             validatorMock
                 .Setup(v => v.ValidateUserAsync(It.Is<CreateUserRequest>(r => string.IsNullOrWhiteSpace(r.Name) || string.IsNullOrWhiteSpace(r.Email)), It.IsAny<CancellationToken>()))

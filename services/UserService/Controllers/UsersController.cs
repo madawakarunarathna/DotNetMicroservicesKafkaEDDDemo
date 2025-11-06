@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using UserService.Application.CQRS.Commands.CreateUser;
 using UserService.Application.Services;
-using UserService.Dtos.Requests;
 
 namespace UserService.Controllers
 {
@@ -25,7 +25,7 @@ namespace UserService.Controllers
         /// <param name="ct">Cancellation token.</param>
         /// <returns>Returns the created user with HTTP 201 Created.</returns>
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateUserRequest request, CancellationToken ct)
+        public async Task<IActionResult> Create(CreateUserCommand request, CancellationToken ct)
         {
             if (!ModelState.IsValid) return ValidationProblem(ModelState);
 

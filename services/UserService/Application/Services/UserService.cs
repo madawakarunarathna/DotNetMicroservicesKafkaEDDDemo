@@ -1,14 +1,11 @@
 ﻿using AutoMapper;
-using Contracts.Events;
 using Contracts.Messaging.Configuration;
 using Contracts.Messaging.Producers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using UserService.Domain;
-using UserService.Dtos.Requests;
+using UserService.Application.CQRS.Commands.CreateUser;
 using UserService.Dtos.Responses;
 using UserService.Persistence;
-using UserService.Validation;
 
 namespace UserService.Application.Services
 {
@@ -18,9 +15,9 @@ namespace UserService.Application.Services
         private readonly IEventProducer _producer;
         private readonly KafkaOptions _kafka;
         private readonly IMapper _mapper;
-        private readonly IUserValidator _userValidator;
+        private readonly ICreateUserCommandValidator _userValidator;
 
-        public UserService(UserDbContext db, IEventProducer producer, IOptions<KafkaOptions> kafka, IMapper mapper, IUserValidator userValidator)
+        public UserService(UserDbContext db, IEventProducer producer, IOptions<KafkaOptions> kafka, IMapper mapper, ICreateUserCommandValidator userValidator)
         {
             _db = db;
             _producer = producer;
@@ -30,31 +27,31 @@ namespace UserService.Application.Services
         }
 
 
-        public async Task<UserResponse> CreateUserAsync(CreateUserRequest request, CancellationToken ct)
-        {
-            ct.ThrowIfCancellationRequested();
+        //public async Task<UserResponse> CreateUserAsync(CreateUserRequest request, CancellationToken ct)
+        //{
+        //    ct.ThrowIfCancellationRequested();
 
-            await _userValidator.ValidateUserAsync(request, ct);
+        //    await _userValidator.ValidateUserAsync(request, ct);
 
-            var user = _mapper.Map<User>(request);
-            user.Id = Guid.NewGuid();
+        //    var user = _mapper.Map<User>(request);
+        //    user.Id = Guid.NewGuid();
 
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync(ct);
+        //    _db.Users.Add(user);
+        //    await _db.SaveChangesAsync(ct);
 
-            // Publish event
-            var evt = new UserCreated
-            {
-                UserId = user.Id,
-                UserName = user.Name,
-                Email = user.Email
-            };
+        //    // Publish event
+        //    var evt = new UserCreated
+        //    {
+        //        UserId = user.Id,
+        //        UserName = user.Name,
+        //        Email = user.Email
+        //    };
 
-            await _producer.ProduceAsync(_kafka.Topics.Users, user.Id.ToString(), evt, ct);
+        //    await _producer.ProduceAsync(_kafka.Topics.Users, user.Id.ToString(), evt, ct);
 
-            // Map domain → output DTO
-            return _mapper.Map<UserResponse>(user);
-        }
+        //    // Map domain → output DTO
+        //    return _mapper.Map<UserResponse>(user);
+        //}
 
         public async Task<List<UserResponse>> GetAllUsersAsync(CancellationToken ct)
         {

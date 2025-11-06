@@ -2,12 +2,12 @@ using Contracts.Messaging.Configuration;
 using Contracts.Messaging.Producers;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using UserService.Application.CQRS.Commands.CreateUser;
 using UserService.Application.Services;
 using UserService.Messaging.Consumers;
 using UserService.Messaging.Producers;
 using UserService.Persistence;
 using UserService.Profiles;
-using UserService.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +25,7 @@ builder.Services.AddSingleton<IEventProducer, KafkaEventProducer>();
 builder.Services.AddHostedService<OrderCreatedConsumer>();
 
 builder.Services.AddScoped<IUserService, UserService.Application.Services.UserService>();
-builder.Services.AddScoped<IUserValidator, UserValidator>();
+builder.Services.AddScoped<ICreateUserCommandValidator, CreateUserCommandValidator>();
 
 builder.Services.AddAutoMapper(typeof(UserMappingProfile));
 
