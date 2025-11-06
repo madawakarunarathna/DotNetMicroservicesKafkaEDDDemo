@@ -25,6 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Application\CQRS\Commands\" />
+    <Folder Include="Application\CQRS\Queries\" />
     <Folder Include="Application\Exceptions\" />
     <Folder Include="Validation\" />
   </ItemGroup>
